@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spare Zone Innovation | Smart Procurement</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Animated Background for Auth -->
+    <div class="animated-bg" id="animated-bg">
+        <div id="theme-toggle-auth" class="theme-toggle-auth" onclick="toggleTheme()">
+            <i class="fa-solid fa-moon" id="theme-icon-auth"></i>
+        </div>
+        <i class="fa-solid fa-gear float-icon icon-1"></i>
+        <i class="fa-solid fa-wrench float-icon icon-2"></i>
+        <i class="fa-solid fa-car float-icon icon-3"></i>
+        <i class="fa-solid fa-motorcycle float-icon icon-4"></i>
+        <i class="fa-solid fa-truck float-icon icon-5"></i>
+    </div>
+
+    <!-- MAIN AUTH WRAPPER -->
+    <div class="auth-wrapper" id="auth-wrapper">
+        
+        <!-- Branding Side -->
+        <div class="branding-side">
+            <div class="brand-logo">
+                <i class="fa-solid fa-gears"></i>
+            </div>
+            <h1>Spare Zone<br>Innovation</h1>
+            <p>Your Local Smart Spare Parts Procurement Platform.</p>
+        </div>
+
+        <!-- Auth Card -->
+        <div class="auth-card glass-card">
+            
+            <!-- Login Form -->
+            <div id="login-section">
+                <h2>Welcome Back</h2>
+                <p class="subtitle">Login to access your dashboard</p>
+                
+                <form id="login-form" onsubmit="handleLogin(event)">
+                    <div class="input-container">
+                        <div class="input-group">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" id="login-email" placeholder="Gmail Address" required>
+                        </div>
+                        <span class="error-message" id="login-email-error"></span>
+                    </div>
+
+                    <div class="input-container">
+                        <div class="input-group">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="login-password" placeholder="Password" required>
+                            <i class="fa-solid fa-eye password-toggle" onclick="togglePasswordVisibility('login-password', this)"></i>
+                        </div>
+                        <span class="error-message" id="login-password-error"></span>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="#" class="forgot-link">Forgot Password?</a>
+                    </div>
+                    
+                    <span class="error-message main-error" id="login-main-error"></span>
+
+                    <button type="submit" class="btn btn-gradient w-100">Login to Dashboard</button>
+                    
+                    <div class="auth-redirect">
+                        <p>Don't have an account? <span class="redirect-link" onclick="toggleAuthForms('signup')">Sign Up</span></p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signup-section" class="hidden">
+                <h2>Create Account</h2>
+                <p class="subtitle">Join Spare Zone Innovation</p>
+                
+                <form id="signup-form" onsubmit="handleSignup(event)">
+                    <div class="input-container">
+                        <div class="input-group">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" id="signup-name" placeholder="Full Name" required>
+                        </div>
+                        <span class="error-message" id="signup-name-error"></span>
+                    </div>
+
+                    <div class="input-container">
+                        <div class="input-group">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" id="signup-email" placeholder="Gmail Address (user@gmail.com)" required>
+                        </div>
+                        <span class="error-message" id="signup-email-error"></span>
+                    </div>
+                    
+                    <div class="input-container">
+                        <div class="input-group">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="signup-password" placeholder="Password" required>
+                            <i class="fa-solid fa-eye password-toggle" onclick="togglePasswordVisibility('signup-password', this)"></i>
+                        </div>
+                        <span class="error-message" id="signup-password-error"></span>
+                        <div class="password-hint">Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char.</div>
+                    </div>
+
+                    <div class="input-container">
+                        <div class="input-group">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <input type="password" id="signup-confirm-password" placeholder="Confirm Password" required>
+                            <i class="fa-solid fa-eye password-toggle" onclick="togglePasswordVisibility('signup-confirm-password', this)"></i>
+                        </div>
+                        <span class="error-message" id="signup-confirm-password-error"></span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-gradient w-100">Sign Up</button>
+                    
+                    <div class="auth-redirect">
+                        <p>Already have an account? <span class="redirect-link" onclick="toggleAuthForms('login')">Login</span></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="dashboard-section" class="hidden">
+        
+        <!-- Navbar -->
+        <nav class="dashboard-nav">
+            <div class="nav-brand" onclick="showPage('home')" style="cursor:pointer;">
+                <i class="fa-solid fa-gears"></i>
+                <h2>Spare Zone</h2>
+            </div>
+            <div class="nav-search-bar">
+                <i class="fa-solid fa-search nav-search-icon"></i>
+                <input type="text" id="nav-search-input" placeholder="Search for local spare parts..." onkeyup="handleNavSearch()">
+                <button class="nav-search-btn" onclick="handleNavSearch()"><i class="fa-solid fa-search"></i></button>
+            </div>
+            <div class="nav-actions">
+                <div class="nav-icon theme-toggle-nav" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+                    <i class="fa-solid fa-moon" id="theme-icon"></i>
+                </div>
+                <div class="nav-icon" onclick="showPage('cart')">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="cart-badge" id="cart-badge">0</span>
+                </div>
+                <div class="nav-icon" onclick="showPage('orders')" title="My Orders"><i class="fa-solid fa-list-check"></i></div>
+                <div class="nav-icon"><i class="fa-regular fa-bell"></i></div>
+                <div class="nav-icon"><i class="fa-regular fa-user"></i></div>
+                <div class="nav-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <button class="btn btn-outline" onclick="handleLogout()" style="padding:0.4rem 1rem; font-size:0.9rem;">Logout</button>
+            </div>
+        </nav>
+
+        <div class="dashboard-content">
+
+            <!-- HOME PAGE -->
+            <div id="home-page">
+            <div class="hero-banner">
+                <h1>Find Spare Parts Easily</h1>
+                <p>Direct from trusted Tamil Nadu local markets to your workshop.</p>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+                <h2 class="section-title" style="margin-bottom: 0;">Trending Spare Parts</h2>
+                <div class="category-filters">
+                    <button class="filter-btn active" onclick="filterProducts('All')">All Parts</button>
+                    <button class="filter-btn" onclick="filterProducts('Two Wheeler')">Two Wheeler</button>
+                    <button class="filter-btn" onclick="filterProducts('Three Wheeler')">Three Wheeler</button>
+                    <button class="filter-btn" onclick="filterProducts('Four Wheeler')">Four Wheeler</button>
+                </div>
+            </div>
+
+            <div class="product-grid" id="product-grid">
+                <!-- Products dynamically injected via JS -->
+            </div>
+            </div>
+
+            <!-- CART PAGE -->
+            <div id="cart-page" class="hidden">
+                <div style="margin-bottom:1.5rem;">
+                    <button class="btn btn-outline" style="border:none;padding:0;background:none;" onclick="showPage('home')"><i class="fa-solid fa-arrow-left"></i> Continue Shopping</button>
+                </div>
+                <h2 class="section-title">Your Shopping Cart</h2>
+                <div class="cart-layout">
+                    <div class="cart-items" id="cart-items-container"></div>
+                    <div class="order-summary">
+                        <h3>Order Summary</h3>
+                        <div class="summary-row"><span>Subtotal</span><span id="summary-subtotal">&#8377;0</span></div>
+                        <div class="summary-row"><span>GST (18%)</span><span id="summary-gst">&#8377;0</span></div>
+                        <div class="summary-row"><span>Delivery</span><span id="summary-delivery">&#8377;0</span></div>
+                        <hr class="summary-divider">
+                        <div class="summary-row summary-total"><span>Total</span><span id="summary-total">&#8377;0</span></div>
+                        <button class="btn btn-gradient w-100" style="margin-top:1.5rem;" onclick="proceedToCheckout()">Proceed to Checkout</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TRACKING PAGE -->
+            <div id="tracking-page" class="hidden">
+                <div class="tracking-container glass-card">
+                    <h2 style="text-align:center;color:#10b981;font-size:2rem;margin-bottom:0.5rem;">Order Tracking</h2>
+                    <div class="tracking-id-badge" id="tracking-id-display">Tracking ID: SZ-IN-0000000</div>
+                    <div class="tracking-info-grid">
+                        <div class="info-box">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <div><div class="info-label">Delivery Partner</div><div class="info-value">Speed Post Local</div></div>
+                        </div>
+                        <div class="info-box">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            <div><div class="info-label">Expected Delivery</div><div class="info-value">Tomorrow, By 5 PM</div></div>
+                        </div>
+                        <div class="info-box">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <div><div class="info-label">Delivery Location</div><div class="info-value">Workshop, Chennai</div></div>
+                        </div>
+                    </div>
+                    <div class="stepper-container">
+                        <div class="stepper-line"></div>
+                        <div class="stepper-fill" style="width:50%;"></div>
+                        <div class="step completed"><div class="step-icon"><i class="fa-solid fa-check"></i></div><div class="step-label">Order Confirmed</div></div>
+                        <div class="step completed"><div class="step-icon"><i class="fa-solid fa-box"></i></div><div class="step-label">Packed</div></div>
+                        <div class="step active"><div class="step-icon"><i class="fa-solid fa-truck"></i></div><div class="step-label">Shipped</div></div>
+                        <div class="step"><div class="step-icon"><i class="fa-solid fa-route"></i></div><div class="step-label">Out for Delivery</div></div>
+                        <div class="step"><div class="step-icon"><i class="fa-solid fa-house"></i></div><div class="step-label">Delivered</div></div>
+                    </div>
+                    <div style="text-align:center;margin-top:3rem;">
+                        <button class="btn btn-outline" onclick="showPage('home')">Back to Dashboard</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════
+                 CHECKOUT PAGE
+                 ═══════════════════════════════════════════ -->
+            <div id="checkout-page" class="hidden">
+                <div style="margin-bottom:1.5rem;">
+                    <button class="btn btn-outline" style="border:none;padding:0;background:none;" onclick="showPage('cart')">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Cart
+                    </button>
+                </div>
+                <h2 class="section-title">Checkout</h2>
+
+                <div class="checkout-layout">
+                    <!-- LEFT: Delivery + Payment -->
+                    <div class="checkout-left">
+
+                        <!-- Delivery Address -->
+                        <div class="checkout-card">
+                            <div class="checkout-card-header">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <h3>Delivery Address</h3>
+                            </div>
+                            <div class="delivery-address-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Full Name</label>
+                                        <input type="text" id="co-name" placeholder="Your full name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Mobile Number</label>
+                                        <input type="tel" id="co-phone" placeholder="+91 XXXXXXXXXX">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Address Line 1</label>
+                                    <input type="text" id="co-addr1" placeholder="House / Flat / Building No., Street">
+                                </div>
+                                <div class="form-group">
+                                    <label>Address Line 2</label>
+                                    <input type="text" id="co-addr2" placeholder="Area, Colony, Locality (Optional)">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>City</label>
+                                        <input type="text" id="co-city" placeholder="City" value="Chennai">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>State</label>
+                                        <input type="text" id="co-state" placeholder="State" value="Tamil Nadu">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>PIN Code</label>
+                                        <input type="text" id="co-pin" placeholder="600001">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Mode -->
+                        <div class="checkout-card">
+                            <div class="checkout-card-header">
+                                <i class="fa-solid fa-credit-card"></i>
+                                <h3>Payment Method</h3>
+                            </div>
+                            <div class="payment-options">
+                                <label class="payment-option" onclick="selectPayment('cod')">
+                                    <input type="radio" name="payment" value="cod" id="pay-cod" checked>
+                                    <div class="payment-option-card" id="pcard-cod">
+                                        <i class="fa-solid fa-money-bill-wave" style="color:#10b981;"></i>
+                                        <div>
+                                            <div class="pay-title">Cash on Delivery</div>
+                                            <div class="pay-sub">Pay when your order arrives</div>
+                                        </div>
+                                        <span class="pay-badge">Safe & Easy</span>
+                                    </div>
+                                </label>
+                                <label class="payment-option" onclick="selectPayment('upi')">
+                                    <input type="radio" name="payment" value="upi" id="pay-upi">
+                                    <div class="payment-option-card" id="pcard-upi">
+                                        <i class="fa-solid fa-mobile-screen-button" style="color:#8b5cf6;"></i>
+                                        <div>
+                                            <div class="pay-title">UPI Payment</div>
+                                            <div class="pay-sub">GPay, PhonePe, Paytm, BHIM</div>
+                                        </div>
+                                        <span class="pay-badge instant">Instant</span>
+                                    </div>
+                                </label>
+                                <label class="payment-option" onclick="selectPayment('debit')">
+                                    <input type="radio" name="payment" value="debit" id="pay-debit">
+                                    <div class="payment-option-card" id="pcard-debit">
+                                        <i class="fa-solid fa-credit-card" style="color:#3b82f6;"></i>
+                                        <div>
+                                            <div class="pay-title">Debit Card</div>
+                                            <div class="pay-sub">Visa, Mastercard, RuPay</div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="payment-option" onclick="selectPayment('credit')">
+                                    <input type="radio" name="payment" value="credit" id="pay-credit">
+                                    <div class="payment-option-card" id="pcard-credit">
+                                        <i class="fa-solid fa-credit-card" style="color:#F97316;"></i>
+                                        <div>
+                                            <div class="pay-title">Credit Card</div>
+                                            <div class="pay-sub">EMI options available</div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="payment-option" onclick="selectPayment('netbanking')">
+                                    <input type="radio" name="payment" value="netbanking" id="pay-netbanking">
+                                    <div class="payment-option-card" id="pcard-netbanking">
+                                        <i class="fa-solid fa-building-columns" style="color:#06b6d4;"></i>
+                                        <div>
+                                            <div class="pay-title">Net Banking</div>
+                                            <div class="pay-sub">SBI, HDFC, ICICI, Axis & more</div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- UPI input (shown when UPI selected) -->
+                            <div id="upi-input-section" class="hidden" style="margin-top:1rem;">
+                                <div class="form-group">
+                                    <label>Enter UPI ID</label>
+                                    <input type="text" placeholder="yourname@upi" id="upi-id">
+                                </div>
+                            </div>
+                            <!-- Card input (shown when card selected) -->
+                            <div id="card-input-section" class="hidden" style="margin-top:1rem;">
+                                <div class="form-group">
+                                    <label>Card Number</label>
+                                    <input type="text" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" id="card-number">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Expiry Date</label>
+                                        <input type="text" placeholder="MM/YY" maxlength="5" id="card-expiry">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>CVV</label>
+                                        <input type="password" placeholder="•••" maxlength="3" id="card-cvv">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Security badges -->
+                            <div class="security-badges">
+                                <span><i class="fa-solid fa-lock"></i> 256-bit SSL</span>
+                                <span><i class="fa-solid fa-shield-halved"></i> Secure Pay</span>
+                                <span><i class="fa-solid fa-check-circle"></i> PCI DSS</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Order Summary -->
+                    <div class="checkout-right">
+                        <div class="checkout-card order-summary-box">
+                            <div class="checkout-card-header">
+                                <i class="fa-solid fa-receipt"></i>
+                                <h3>Order Summary</h3>
+                            </div>
+                            <div id="co-items-list" class="co-items-list"></div>
+                            <div class="summary-rows">
+                                <div class="summary-row"><span>Subtotal</span><span id="co-subtotal">₹0</span></div>
+                                <div class="summary-row"><span>GST (18%)</span><span id="co-gst">₹0</span></div>
+                                <div class="summary-row"><span>Delivery</span><span id="co-delivery">₹50</span></div>
+                                <hr class="summary-divider">
+                                <div class="summary-row summary-total"><span>Total Payable</span><span id="co-total">₹0</span></div>
+                            </div>
+                            <button class="btn btn-gradient w-100 place-order-btn" onclick="placeOrder()" style="margin-top:1.5rem; padding:1rem; font-size:1.1rem;">
+                                <i class="fa-solid fa-lock"></i> Place Order Securely
+                            </button>
+                            <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:0.8rem;">
+                                <i class="fa-solid fa-shield-halved"></i> Your information is 100% secure
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════
+                 ORDER CONFIRMATION PAGE
+                 ═══════════════════════════════════════════ -->
+            <div id="confirmation-page" class="hidden">
+                <div class="confirmation-wrapper">
+                    <div class="confirmation-card glass-card">
+                        <div class="success-animation">
+                            <div class="success-circle">
+                                <i class="fa-solid fa-check success-checkmark"></i>
+                            </div>
+                            <div class="success-ripple r1"></div>
+                            <div class="success-ripple r2"></div>
+                            <div class="success-ripple r3"></div>
+                        </div>
+                        <h2 class="conf-title">Order Placed Successfully! 🎉</h2>
+                        <p class="conf-sub">Thank you for shopping with Spare Zone Innovation. Your order is confirmed.</p>
+
+                        <div class="conf-details-grid">
+                            <div class="conf-detail-box">
+                                <div class="conf-detail-label">Order Number</div>
+                                <div class="conf-detail-val" id="conf-order-num">SPZ-0000</div>
+                            </div>
+                            <div class="conf-detail-box">
+                                <div class="conf-detail-label">Tracking ID</div>
+                                <div class="conf-detail-val" id="conf-tracking-id">SZ-IN-0000000</div>
+                            </div>
+                            <div class="conf-detail-box">
+                                <div class="conf-detail-label">Payment Method</div>
+                                <div class="conf-detail-val" id="conf-payment">COD</div>
+                            </div>
+                            <div class="conf-detail-box">
+                                <div class="conf-detail-label">Est. Delivery</div>
+                                <div class="conf-detail-val" id="conf-delivery-date">—</div>
+                            </div>
+                        </div>
+
+                        <div class="conf-address-box">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <div>
+                                <strong>Delivering to:</strong>
+                                <p id="conf-address">—</p>
+                            </div>
+                        </div>
+
+                        <!-- Countdown Timer -->
+                        <div class="delivery-countdown">
+                            <i class="fa-solid fa-clock"></i>
+                            <span>Estimated arrival in: <strong id="conf-countdown">—</strong></span>
+                        </div>
+
+                        <div class="conf-actions">
+                            <button class="btn btn-gradient" onclick="showPage('tracking')">
+                                <i class="fa-solid fa-truck"></i> Track My Order
+                            </button>
+                            <button class="btn btn-outline" onclick="showPage('orders')">
+                                <i class="fa-solid fa-list-check"></i> My Orders
+                            </button>
+                            <button class="btn btn-outline" onclick="showPage('home')">
+                                <i class="fa-solid fa-store"></i> Continue Shopping
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════
+                 ENHANCED TRACKING PAGE
+                 ═══════════════════════════════════════════ -->
+            <div id="track-page" class="hidden">
+                <div style="margin-bottom:1.5rem;">
+                    <button class="btn btn-outline" style="border:none;padding:0;background:none;" onclick="showPage('home')">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+                    </button>
+                </div>
+                <h2 class="section-title">Shipment Tracking</h2>
+
+                <div class="tracking-full-layout">
+                    <!-- Tracking Header -->
+                    <div class="track-header-card glass-card">
+                        <div class="track-header-info">
+                            <div>
+                                <div class="track-label">Tracking ID</div>
+                                <div class="track-val" id="track-id-display">SZ-IN-0000000</div>
+                            </div>
+                            <div>
+                                <div class="track-label">Order Number</div>
+                                <div class="track-val" id="track-order-num">SPZ-0000</div>
+                            </div>
+                            <div>
+                                <div class="track-label">Est. Delivery</div>
+                                <div class="track-val" id="track-est-date">—</div>
+                            </div>
+                            <div class="track-status-badge">
+                                <i class="fa-solid fa-truck"></i> In Transit
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Truck Animation -->
+                    <div class="truck-animation-bar">
+                        <div class="road-line"></div>
+                        <div class="truck-icon" id="truck-icon">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                    </div>
+
+                    <!-- Info Cards -->
+                    <div class="tracking-info-grid">
+                        <div class="info-box">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <div><div class="info-label">Delivery Partner</div><div class="info-value">Speed Post Local</div></div>
+                        </div>
+                        <div class="info-box">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <div><div class="info-label">Current Location</div><div class="info-value">Chennai Distribution Center</div></div>
+                        </div>
+                        <div class="info-box">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            <div><div class="info-label">Expected Delivery</div><div class="info-value" id="track-delivery-time">Tomorrow, By 7 PM</div></div>
+                        </div>
+                        <div class="info-box">
+                            <i class="fa-solid fa-person-biking"></i>
+                            <div><div class="info-label">Delivery Agent</div><div class="info-value">Rajan Kumar (+91 98765 43210)</div></div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Stepper -->
+                    <div class="track-stepper-card glass-card">
+                        <h3 style="margin-bottom:2rem;">Delivery Progress</h3>
+                        <div class="full-stepper">
+                            <div class="full-step done">
+                                <div class="fs-dot"><i class="fa-solid fa-check"></i></div>
+                                <div class="fs-content">
+                                    <div class="fs-title">Order Confirmed</div>
+                                    <div class="fs-time" id="fs-time-1">—</div>
+                                    <div class="fs-desc">Your order has been received and confirmed.</div>
+                                </div>
+                            </div>
+                            <div class="full-step done">
+                                <div class="fs-dot"><i class="fa-solid fa-box"></i></div>
+                                <div class="fs-content">
+                                    <div class="fs-title">Packed</div>
+                                    <div class="fs-time" id="fs-time-2">—</div>
+                                    <div class="fs-desc">Your order has been packed and ready for dispatch.</div>
+                                </div>
+                            </div>
+                            <div class="full-step active">
+                                <div class="fs-dot"><i class="fa-solid fa-truck"></i></div>
+                                <div class="fs-content">
+                                    <div class="fs-title">Shipped</div>
+                                    <div class="fs-time" id="fs-time-3">—</div>
+                                    <div class="fs-desc">Your order is on the way from Chennai Hub.</div>
+                                </div>
+                            </div>
+                            <div class="full-step">
+                                <div class="fs-dot"><i class="fa-solid fa-route"></i></div>
+                                <div class="fs-content">
+                                    <div class="fs-title">Out for Delivery</div>
+                                    <div class="fs-time">Pending</div>
+                                    <div class="fs-desc">Delivery agent will pick up your package soon.</div>
+                                </div>
+                            </div>
+                            <div class="full-step">
+                                <div class="fs-dot"><i class="fa-solid fa-house"></i></div>
+                                <div class="fs-content">
+                                    <div class="fs-title">Delivered</div>
+                                    <div class="fs-time">Pending</div>
+                                    <div class="fs-desc">Package delivered to your address.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align:center; margin-top:2rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+                        <button class="btn btn-gradient" onclick="showPage('orders')"><i class="fa-solid fa-list-check"></i> My Orders</button>
+                        <button class="btn btn-outline" onclick="showPage('home')">Back to Dashboard</button>
+                        <button class="btn btn-outline"><i class="fa-solid fa-headset"></i> Contact Support</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════
+                 MY ORDERS PAGE
+                 ═══════════════════════════════════════════ -->
+            <div id="orders-page" class="hidden">
+                <div style="margin-bottom:1.5rem;">
+                    <button class="btn btn-outline" style="border:none;padding:0;background:none;" onclick="showPage('home')">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+                    </button>
+                </div>
+                <h2 class="section-title">My Orders</h2>
+                <div id="orders-list-container">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ==============================================
+         MODALS
+         ============================================== -->
+
+    <!-- Video Installation Tutorial Modal -->
+    <div id="tutorial-modal" class="modal-overlay hidden">
+        <div class="modal-card video-modal full-player-modal">
+            <div class="modal-header">
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <i class="fa-solid fa-play-circle" style="color:#F97316;font-size:1.4rem;"></i>
+                    <div>
+                        <h3 style="margin:0;font-size:1.1rem;">How to Fit This Part</h3>
+                        <span style="font-size:0.75rem;color:var(--text-muted);">Real Mechanic Tutorial</span>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeTutorialModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="tutorial-layout">
+                    <!-- Video Player Section -->
+                    <div class="video-container main-player">
+                        <div id="tutorial-loader" class="tutorial-loader">
+                            <div class="spinner"></div>
+                            <p>Loading Tutorial Video...</p>
+                            <span style="font-size:0.75rem;color:#475569;margin-top:0.3rem;">Preparing mechanic demonstration</span>
+                        </div>
+                        <iframe 
+                            id="fitting-demo-iframe"
+                            src="fitting_demo.html" 
+                            style="width:100%; height:100%; border:none; display:block;"
+                            title="Fitting Tutorial Video"
+                            allow="autoplay; fullscreen"
+                        ></iframe>
+                    </div>
+
+                    <!-- Details Section -->
+                    <div class="tutorial-details">
+                        <div class="tutorial-badge-row">
+                            <span class="tutorial-type-badge"><i class="fa-solid fa-video"></i> Video Tutorial</span>
+                            <span class="tutorial-type-badge live"><i class="fa-solid fa-circle"></i> HD Quality</span>
+                        </div>
+                        
+                        <h4 id="tutorial-product-name">Product Name</h4>
+                        <p id="tutorial-product-subtitle" style="color:var(--text-muted);font-size:0.85rem;margin-top:0.3rem;margin-bottom:1rem;">Real mechanic demonstration video</p>
+                        
+                        <div class="tools-required">
+                            <strong><i class="fa-solid fa-toolbox"></i> Tools Required:</strong>
+                            <p id="tutorial-tools">10mm Spanner, Screwdriver, Clean Cloth</p>
+                        </div>
+                        
+                        <div class="difficulty-time">
+                            <span><i class="fa-solid fa-clock"></i> <span id="tutorial-duration">15 Mins</span></span>
+                            <span class="badge badge-medium" id="tutorial-difficulty">Medium Difficulty</span>
+                        </div>
+
+                        <div class="step-guide">
+                            <h4><i class="fa-solid fa-list-check" style="color:#F97316;margin-right:0.5rem;"></i>Step-by-Step Installation</h4>
+                            <ul id="tutorial-step-list">
+                                <li id="step-0"><span class="step-num">1</span> Remove old damaged part</li>
+                                <li id="step-1"><span class="step-num">2</span> Clean fitting area</li>
+                                <li id="step-2"><span class="step-num">3</span> Install the new spare part</li>
+                                <li id="step-3"><span class="step-num">4</span> Tighten screws/connectors properly</li>
+                                <li id="step-4"><span class="step-num">5</span> Test vehicle performance</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tutorial-safety-tip">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Always wear safety gloves and work on a stable surface.</span>
+                        </div>
+                        
+                        <button class="btn btn-outline w-100" style="margin-top:1rem;"><i class="fa-solid fa-headset"></i> Need Mechanic Help?</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seller Contact Chat Modal (WhatsApp Style) -->
+    <div id="chat-modal" class="modal-overlay hidden">
+        <div class="modal-card chat-modal">
+            <div class="chat-header">
+                <div class="seller-info">
+                    <div class="seller-avatar">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+                    <div>
+                        <h3 id="chat-seller-name">Seller Name</h3>
+                        <p class="status online">● Online - Replies instantly</p>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeChatModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="message received">
+                    <p>Hello! Welcome to <span id="chat-welcome-seller"></span>. How can we help you today?</p>
+                    <span class="time">10:00 AM</span>
+                </div>
+                <!-- Messages injected here -->
+            </div>
+            
+            <div class="typing-indicator hidden" id="typing-indicator">
+                <span></span><span></span><span></span>
+            </div>
+
+            <div class="chat-input-area">
+                <form id="chat-form" onsubmit="sendChatMessage(event)">
+                    <input type="text" id="chat-input" placeholder="Type a message..." required autocomplete="off">
+                    <button type="submit" class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Toast Notification -->
+    <div id="toast-container" class="toast-container hidden">
+        <i class="fa-solid fa-circle-check" style="color:#10b981;"></i>
+        <span id="toast-message">Item added to cart</span>
+    </div>
+
+
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>

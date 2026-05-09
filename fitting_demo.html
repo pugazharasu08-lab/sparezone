@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spare Zone Fitting Tutorial</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    color: #fff;
+  }
+
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* --- Sidebar Steps UI (Matched to Image) --- */
+  .steps-sidebar {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    width: 280px;
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .sidebar-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px 12px;
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  .sidebar-step.visible {
+    opacity: 0.6;
+    transform: translateX(0);
+  }
+
+  .sidebar-step.active {
+    opacity: 1;
+    transform: translateX(0) scale(1.05);
+    background: rgba(0, 0, 0, 0.7);
+    border-left: 3px solid #F97316;
+  }
+
+  .step-circle {
+    width: 28px;
+    height: 28px;
+    background: #F97316;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
+  }
+
+  .sidebar-step.active .step-circle {
+    background: #fb923c;
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.6);
+  }
+
+  .step-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  }
+
+  /* --- Bottom Caption UI (Matched to Image) --- */
+  .step-caption-container {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    width: 90%;
+    max-width: 700px;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .step-caption-box {
+    background: rgba(0, 0, 0, 0.85);
+    padding: 12px 30px;
+    border-radius: 4px;
+    display: inline-block;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+    transform: translateY(20px);
+    border-bottom: 2px solid #F97316;
+  }
+
+  .step-caption-box.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .caption-text {
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+
+  /* --- Top Bar (Title) --- */
+  .top-info-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 25px 30px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .video-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  }
+
+  /* --- Custom Youtube-style Controls --- */
+  .custom-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
+    padding: 30px 20px 15px;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .video-wrapper:hover .custom-controls {
+    opacity: 1;
+  }
+
+  .progress-area {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    margin-bottom: 20px;
+    cursor: pointer;
+    position: relative;
+    border-radius: 2px;
+    transition: height 0.1s;
+  }
+
+  .progress-area:hover { height: 6px; }
+
+  .progress-buffer {
+    position: absolute;
+    top: 0; left: 0; height: 100%;
+    background: rgba(255,255,255,0.3);
+    width: 0;
+    border-radius: 2px;
+  }
+
+  .progress-filled {
+    position: absolute;
+    top: 0; left: 0; height: 100%;
+    background: #F97316;
+    width: 0;
+    border-radius: 2px;
+  }
+
+  .progress-handle {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    background: #F97316;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.2s;
+    box-shadow: 0 0 8px rgba(0,0,0,0.5);
+  }
+
+  .progress-area:hover .progress-handle {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .buttons-row {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+  }
+
+  .control-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: transform 0.1s, color 0.2s;
+  }
+
+  .control-btn:hover { color: #F97316; }
+  
+  .time-display {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.9);
+    margin-left: 10px;
+  }
+
+  .volume-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .volume-slider-custom {
+    width: 0;
+    opacity: 0;
+    transition: all 0.3s;
+    -webkit-appearance: none;
+    height: 3px;
+    background: rgba(255,255,255,0.3);
+    outline: none;
+  }
+
+  .volume-wrap:hover .volume-slider-custom {
+    width: 70px;
+    opacity: 1;
+  }
+
+  .volume-slider-custom::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px; height: 12px;
+    background: #fff; border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .right-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+  }
+
+  /* --- Branding (Bottom Left) --- */
+  .branding-info {
+    position: absolute;
+    bottom: 65px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .branding-logo {
+    width: 36px;
+    height: 36px;
+    background: #F97316;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+  }
+
+  .branding-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .brand-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+
+  .brand-sub {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.8);
+  }
+
+  /* --- Overlays --- */
+  #loading-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #000;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 100;
+  }
+
+  .loader-spinner {
+    width: 60px; height: 60px;
+    border: 4px solid rgba(249, 115, 22, 0.1);
+    border-top-color: #F97316;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .big-play-overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90px; height: 90px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 50;
+    border: 2px solid rgba(255,255,255,0.2);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }
+
+  .big-play-overlay:hover {
+    background: rgba(249, 115, 22, 0.9);
+    transform: translate(-50%, -50%) scale(1.15);
+    border-color: #fff;
+  }
+
+  .big-play-overlay i { font-size: 3rem; color: #fff; margin-left: 8px; }
+
+  .hidden { display: none !important; }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<div class="video-wrapper" id="video-wrapper">
+  <!-- Top Bar -->
+  <div class="top-info-bar">
+    <div class="video-title" id="main-title">How to Fit Front Disc Brake Pads | Step-by-Step Guide</div>
+    <div class="top-right">
+      <i class="fa-solid fa-info-circle" style="opacity: 0.7; font-size: 1.4rem; cursor: pointer;"></i>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay">
+    <div class="loader-spinner"></div>
+    <p style="margin-top: 20px; color: #94a3b8; font-size: 1rem; font-weight: 500;">Tutorial video loading...</p>
+  </div>
+
+  <!-- Big Play Button -->
+  <div class="big-play-overlay" id="big-play-overlay" onclick="togglePlay()">
+    <i class="fa-solid fa-play"></i>
+  </div>
+
+  <!-- Video Element -->
+  <video id="tutorial-video" playsinline crossorigin="anonymous">
+    <source id="video-source" src="" type="video/mp4">
+  </video>
+
+  <!-- Sidebar Steps (Left) -->
+  <div class="steps-sidebar" id="sidebar-steps">
+    <!-- Steps will be injected here -->
+  </div>
+
+  <!-- Step Caption (Bottom) -->
+  <div class="step-caption-container">
+    <div class="step-caption-box" id="caption-box">
+      <div class="caption-text" id="caption-text">Step 3: Insert the new brake pads into the caliper.</div>
+    </div>
+  </div>
+
+  <!-- Branding (Bottom Left) -->
+  <div class="branding-info">
+    <div class="branding-logo">⚙️</div>
+    <div class="branding-text">
+      <div class="brand-name" id="brand-title">Front Disc Brake Pad Fitting</div>
+      <div class="brand-sub">Spare Zone Innovation • Real Mechanic Tutorial</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="custom-controls">
+    <div class="progress-area" id="progress-area" onclick="seek(event)">
+      <div class="progress-buffer" id="buffer"></div>
+      <div class="progress-filled" id="filled"></div>
+      <div class="progress-handle" id="handle"></div>
+    </div>
+    
+    <div class="buttons-row">
+      <button class="control-btn" onclick="togglePlay()" id="play-btn">
+        <i class="fa-solid fa-play"></i>
+      </button>
+      <button class="control-btn" onclick="restart()" title="Replay">
+        <i class="fa-solid fa-rotate-right"></i>
+      </button>
+      
+      <div class="volume-wrap">
+        <button class="control-btn" onclick="toggleMute()" id="mute-btn">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+        <input type="range" class="volume-slider-custom" id="volume-slider" min="0" max="1" step="0.1" value="0.8" oninput="setVolume(this.value)">
+      </div>
+
+      <div class="time-display">
+        <span id="current-time">0:00</span> / <span id="total-time">0:00</span>
+      </div>
+
+      <div class="right-controls">
+        <button class="control-btn" title="Subtitles"><i class="fa-solid fa-closed-captioning"></i></button>
+        <button class="control-btn" title="Settings"><i class="fa-solid fa-gear"></i></button>
+        <button class="control-btn" onclick="toggleFullscreen()" title="Fullscreen"><i class="fa-solid fa-expand"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// VIDEO DATABASE
+// ============================================================
+const videoDatabase = {
+  brake: {
+    title: "How to Fit Front Disc Brake Pads | Step-by-Step Guide",
+    brandTitle: "Front Disc Brake Pad Fitting",
+    videos: [
+      'https://videos.pexels.com/video-files/3173312/3173312-uhd_2560_1440_30fps.mp4',
+      'https://videos.pexels.com/video-files/5877918/5877918-uhd_2560_1440_25fps.mp4'
+    ],
+    steps: [
+      'Remove Old Brake Pads',
+      'Clean Caliper Area',
+      'Insert New Brake Pads',
+      'Fit Caliper Properly',
+      'Tighten Bolts',
+      'Test Brake Performance'
+    ],
+    captions: [
+      'Step 1: Carefully remove the old brake pads from the caliper assembly.',
+      'Step 2: Use brake cleaner to thoroughly clean the caliper and mounting area.',
+      'Step 3: Insert the new brake pads into the caliper, ensuring proper alignment.',
+      'Step 4: Slide the caliper back onto the disc rotor carefully.',
+      'Step 5: Replace and tighten all mounting bolts to the specified torque.',
+      'Step 6: Pump the brake lever several times and test performance before riding.'
+    ]
+  },
+  chain: {
+    title: "How to Install a Bike Chain & Sprocket | Full Guide",
+    brandTitle: "Chain & Sprocket Installation",
+    videos: [
+      'https://videos.pexels.com/video-files/5877918/5877918-uhd_2560_1440_25fps.mp4',
+      'https://videos.pexels.com/video-files/3173312/3173312-uhd_2560_1440_30fps.mp4'
+    ],
+    steps: [
+      'Remove Old Chain',
+      'Clean Sprockets',
+      'Route New Chain',
+      'Join Chain Links',
+      'Adjust Tension',
+      'Lubricate Chain'
+    ],
+    captions: [
+      'Step 1: Break the old chain using a chain breaker tool and remove it.',
+      'Step 2: Clean both front and rear sprockets using a degreaser.',
+      'Step 3: Route the new chain through the derailleurs and around sprockets.',
+      'Step 4: Use a master link or pin to securely join the chain ends.',
+      'Step 5: Adjust the rear wheel position to achieve optimal chain tension.',
+      'Step 6: Apply a high-quality chain lubricant and wipe off excess.'
+    ]
+  },
+  filter: {
+    title: "Air Filter Replacement Tutorial | DIY Mechanic",
+    brandTitle: "Air Filter Replacement",
+    videos: [
+      'https://videos.pexels.com/video-files/3173312/3173312-uhd_2560_1440_30fps.mp4',
+      'https://videos.pexels.com/video-files/5877918/5877918-uhd_2560_1440_25fps.mp4'
+    ],
+    steps: [
+      'Open Filter Box',
+      'Remove Dirty Filter',
+      'Clean Housing',
+      'Insert New Filter',
+      'Seal Filter Box',
+      'Verify Airflow'
+    ],
+    captions: [
+      'Step 1: Unscrew or unclip the air filter housing cover.',
+      'Step 2: Pull out the old, dirty air filter element carefully.',
+      'Step 3: Use compressed air or a cloth to clean the inside of the housing.',
+      'Step 4: Place the new filter into the housing, ensuring a snug fit.',
+      'Step 5: Secure the housing cover back into place firmly.',
+      'Step 6: Start the engine to ensure smooth airflow and no leaks.'
+    ]
+  },
+  default: {
+    title: "Spare Part Fitting Tutorial | Step-by-Step Guide",
+    brandTitle: "General Part Fitting",
+    videos: [
+      'https://videos.pexels.com/video-files/3173312/3173312-uhd_2560_1440_30fps.mp4'
+    ],
+    steps: [
+      'Inspect Old Part',
+      'Remove Carefully',
+      'Clean Surface',
+      'Prepare New Part',
+      'Secure Fitting',
+      'Final Inspection'
+    ],
+    captions: [
+      'Step 1: Inspect the condition of the part to be replaced.',
+      'Step 2: Carefully remove the old part using appropriate tools.',
+      'Step 3: Clean the contact surfaces to ensure a good fit.',
+      'Step 4: Prepare the new spare part for installation.',
+      'Step 5: Securely fit the new part and tighten all fasteners.',
+      'Step 6: Perform a final inspection to ensure everything is perfect.'
+    ]
+  }
+};
+
+// ============================================================
+// ELEMENTS & STATE
+// ============================================================
+const video = document.getElementById('tutorial-video');
+const videoWrapper = document.getElementById('video-wrapper');
+const loadingOverlay = document.getElementById('loading-overlay');
+const bigPlayBtn = document.getElementById('big-play-overlay');
+const sidebar = document.getElementById('sidebar-steps');
+const captionBox = document.getElementById('caption-box');
+const captionText = document.getElementById('caption-text');
+const filledBar = document.getElementById('filled');
+const handle = document.getElementById('handle');
+const playBtn = document.getElementById('play-btn');
+const muteBtn = document.getElementById('mute-btn');
+const currentTimeEl = document.getElementById('current-time');
+const totalTimeEl = document.getElementById('total-time');
+
+let currentCategory = 'default';
+let currentStepIdx = -1;
+let stepsData = [];
+let captionsData = [];
+let retryCount = 0;
+
+// ============================================================
+// CORE FUNCTIONS
+// ============================================================
+function loadProduct(productName) {
+  const name = (productName || '').toLowerCase();
+  let catKey = 'default';
+  if (name.includes('brake')) catKey = 'brake';
+  else if (name.includes('chain')) catKey = 'chain';
+  else if (name.includes('filter')) catKey = 'filter';
+  
+  const data = videoDatabase[catKey];
+  currentCategory = catKey;
+  stepsData = data.steps;
+  captionsData = data.captions;
+
+  // Update UI Titles
+  document.getElementById('main-title').textContent = data.title;
+  document.getElementById('brand-title').textContent = data.brandTitle;
+
+  // Inject Sidebar Steps
+  sidebar.innerHTML = '';
+  stepsData.forEach((step, idx) => {
+    const div = document.createElement('div');
+    div.className = 'sidebar-step';
+    div.id = `sidebar-step-${idx}`;
+    div.innerHTML = `
+      <div class="step-circle">${idx + 1}</div>
+      <div class="step-name">${step}</div>
+    `;
+    sidebar.appendChild(div);
+    
+    // Animate entry
+    setTimeout(() => div.classList.add('visible'), idx * 100);
+  });
+
+  // Set Video Source
+  loadingOverlay.classList.remove('hidden');
+  video.src = data.videos[0];
+  video.load();
+
+  // Reset State
+  currentStepIdx = -1;
+  updateStepUI(-1);
+}
+
+function updateStepUI(idx) {
+  // Update Sidebar
+  document.querySelectorAll('.sidebar-step').forEach(s => s.classList.remove('active'));
+  if (idx >= 0) {
+    const stepEl = document.getElementById(`sidebar-step-${idx}`);
+    if (stepEl) stepEl.classList.add('active');
+    
+    // Update Caption
+    captionText.textContent = captionsData[idx];
+    captionBox.classList.add('visible');
+  } else {
+    captionBox.classList.remove('visible');
+  }
+}
+
+// ============================================================
+// VIDEO EVENTS
+// ============================================================
+video.addEventListener('loadeddata', () => {
+  loadingOverlay.classList.add('hidden');
+  totalTimeEl.textContent = formatTime(video.duration);
+});
+
+video.addEventListener('timeupdate', () => {
+  // Update Progress Bar
+  const percent = (video.currentTime / video.duration) * 100;
+  filledBar.style.width = `${percent}%`;
+  handle.style.left = `${percent}%`;
+  currentTimeEl.textContent = formatTime(video.currentTime);
+
+  // Update Steps Sync
+  const stepCount = stepsData.length;
+  const stepDur = video.duration / stepCount;
+  const newStepIdx = Math.floor(video.currentTime / stepDur);
+  
+  if (newStepIdx !== currentStepIdx && newStepIdx < stepCount) {
+    currentStepIdx = newStepIdx;
+    updateStepUI(currentStepIdx);
+    
+    // Signal to parent
+    window.parent.postMessage({ type: 'stepChange', step: currentStepIdx }, '*');
+  }
+
+  // Communicate progress to parent
+  window.parent.postMessage({ type: 'progress', percent: percent }, '*');
+  window.parent.postMessage({ type: 'timeUpdate', current: formatTime(video.currentTime), total: formatTime(video.duration) }, '*');
+});
+
+video.addEventListener('play', () => {
+  playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+  bigPlayBtn.classList.add('hidden');
+});
+
+video.addEventListener('pause', () => {
+  playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+  bigPlayBtn.classList.remove('hidden');
+});
+
+video.addEventListener('error', () => {
+  if (retryCount < 2) {
+    retryCount++;
+    const data = videoDatabase[currentCategory];
+    video.src = data.videos[retryCount % data.videos.length];
+    video.load();
+  } else {
+    document.querySelector('#loading-overlay p').textContent = "Unable to load video. Please check your connection.";
+  }
+});
+
+// ============================================================
+// CONTROLS
+// ============================================================
+function togglePlay() {
+  if (video.paused) video.play();
+  else video.pause();
+}
+
+function seek(e) {
+  const area = document.getElementById('progress-area');
+  const rect = area.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const percent = x / rect.width;
+  video.currentTime = percent * video.duration;
+}
+
+function restart() {
+  video.currentTime = 0;
+  video.play();
+}
+
+function toggleMute() {
+  video.muted = !video.muted;
+  muteBtn.innerHTML = video.muted ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>';
+}
+
+function setVolume(val) {
+  video.volume = val;
+  video.muted = (val == 0);
+  muteBtn.innerHTML = (val == 0) ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>';
+}
+
+function formatTime(s) {
+  if (isNaN(s)) return "0:00";
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    if (videoWrapper.requestFullscreen) videoWrapper.requestFullscreen();
+    else if (videoWrapper.webkitRequestFullscreen) videoWrapper.webkitRequestFullscreen();
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+  }
+}
+
+// ============================================================
+// MESSAGE LISTENER
+// ============================================================
+window.addEventListener('message', (e) => {
+  const data = e.data;
+  if (data.type === 'loadProduct') loadProduct(data.productName);
+  else if (data.type === 'play') video.play();
+  else if (data.type === 'pause') video.pause();
+  else if (data.type === 'mute') video.muted = data.value;
+  else if (data.type === 'setVolume') video.volume = data.value;
+  else if (data.type === 'restart') restart();
+  else if (data.type === 'seek') video.currentTime = (data.percent / 100) * video.duration;
+});
+
+// Init
+loadProduct('default');
+</script>
+</body>
+</html>
